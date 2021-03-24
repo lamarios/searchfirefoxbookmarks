@@ -31,7 +31,7 @@ const St = imports.gi.St;
 let FBSearchProvider = null;
 
 let firefoxApp = Shell.AppSystem.get_default().lookup_app("firefox.desktop")  || Shell.AppSystem.get_default().lookup_app("firefox-developer-edition.desktop");
-
+let flatpak = g_desktop_app_info_has_key(firefoxApp, "X-Flatpak");
 
 const FirefoxBookmarksSearchProvider = new Lang.Class({
     Name: 'FirefoxBookmarksSearchProvider',
@@ -66,14 +66,16 @@ const FirefoxBookmarksSearchProvider = new Lang.Class({
             }
         } else {
             // Default
+            let flatpakPrefix = "";
+            if (flatpak) flatpakPrefix = ".var/app/org.mozilla.firefox/";
             let firefoxProfileFile = GLib.build_filenamev(
-                [GLib.get_home_dir(), ".mozilla/firefox/profiles.ini"]);
+                [GLib.get_home_dir(), flatpakPrefix + ".mozilla/firefox/profiles.ini"]);
             let [result, defaultProfile, defaultIsRelative] = this._getFirefoxDefaultProfile(firefoxProfileFile),
                 mozillaDefaultDirPath = "";
 
             if (defaultIsRelative) {
                 mozillaDefaultDirPath = GLib.build_filenamev([
-                    GLib.get_home_dir(), ".mozilla/firefox/",
+                    GLib.get_home_dir(), flatpakPrefix + ".mozilla/firefox/",
                     defaultProfile, "bookmarkbackups/"
                 ]);
             } else {
